@@ -1,0 +1,79 @@
+<dashboard version="1.1">
+  <label>Splunk Health - Log Level Monitor</label>
+
+  <row>
+    <panel>
+      <title>Search Heads - WARN / ERROR / CRITICAL (Last 24h)</title>
+      <chart>
+        <search>
+          <query>
+            index=_internal sourcetype=splunkd log_level IN (WARN, ERROR, CRITICAL)
+            [| rest /services/search/distributed/peers | fields title | rename title AS host]
+            | timechart span=1h count BY log_level
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Indexers - WARN / ERROR / CRITICAL (Last 24h)</title>
+      <chart>
+        <search>
+          <query>
+            index=_internal sourcetype=splunkd log_level IN (WARN, ERROR, CRITICAL)
+            [| rest /services/search/distributed/peers splunk_server=* | fields host | dedup host]
+            | timechart span=1h count BY log_level
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Forwarders - WARN / ERROR / CRITICAL (Last 24h)</title>
+      <chart>
+        <search>
+          <query>
+            index=_internal sourcetype=splunkd log_level IN (WARN, ERROR, CRITICAL)
+            NOT [| rest /services/search/distributed/peers | fields title | rename title AS host]
+            | timechart span=1h count BY log_level
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Top Offending Hosts (All Roles)</title>
+      <table>
+        <search>
+          <query>
+            index=_internal sourcetype=splunkd log_level IN (WARN, ERROR, CRITICAL)
+            | stats count BY host, log_level
+            | sort -count
+            | head 20
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+
+</dashboard>

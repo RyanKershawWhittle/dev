@@ -1,0 +1,5 @@
+<nav search_view="search" color="#65A637">
+  <view name="platform_health" default="true" />
+  <view name="log_level_health" />
+  <view name="overview" />
+</nav>
